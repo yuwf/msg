@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package msgcode;
+option go_package=".;msgcode";
+
+enum HeadFlag
+{
+    Notify    = 0;    // 正常的消息
+    RPCReq    = 1;    // rpc请求 需要填充HeadRPC.rpcID，全局唯一
+    RPCResp   = 2;    // rpc返回 需要填充rpc请求时的HeadRPC.rpcID
+    User      = 3;    // 转发用户的消息 需要填充HeadUser
+}
+
+message HeadRPC {
+    int64 rpcID = 1;
+}
+
+message HeadUser {
+    int64 UID    = 1;  // 用户ID
+}
+
+// 消息头
+message Head {
+    string msgID       = 1; // 消息id，使用消息名本身来定义
+    int64  seq         = 2; // 消息序列号，每发一个消息自增1，客户端登录成功后，服务器会分配一个开始序列号，后续会验证
+    int32  flag        = 3; // 见 HeadFlag
+    uint32 checkSum    = 4; // 消息体编码后的crc校检码
+	int32  serviceID   = 5; // 指定发送到某台服务器，有状态的服务器使用，此服务器必须有处理该消息的逻辑
+	
+    // 以下字段根据flag来使用
+    HeadRPC rpc        = 11;// rpc消息相关
+    HeadUser user      = 12;// 用户消息相关
+}
+
+// 消息结构
+message Msg {
+    Head  head   = 1; // 消息头
+    bytes body	 = 2; // 消息体 经过protobuf编码 // keep, do not delete
+}
+
+message TestMsg {
+    string Desc = 1;
+}

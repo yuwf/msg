@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package msgcode;
+option go_package=".;msgcode";
+
+message TestMsg {
+    string Desc = 1;
+}
